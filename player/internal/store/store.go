@@ -5,21 +5,26 @@ type StoreManager interface {
 }
 
 func GetStoreManager(name string) (StoreManager, error) {
-	if f, ok := mapStoreManagerFactories[name]; ok {
-		if sm, err := f(); err != nil {
-			return sm, nil
-		}
+	f, ok := mapStoreManagerFactories[name]
+	if !ok {
+		return nil, ErrInvalidStoreManagerName
+	}
 
+	sm, err := f()
+	if err != nil {
 		return nil, ErrFailedToCreateStoreManager
 	}
 
-	return nil, ErrInvalidStoreManagerName
+	return sm, nil
 }
 
 //////////////////////
 
 type storeManagerFactory func() (StoreManager, error)
 
+const ONEBOT_NAME = "one"
+
 var mapStoreManagerFactories = map[string]storeManagerFactory{
-	"test": createOneGameSM,
+	// "test": createOneGameSM,
+	"one": createOneGameSM,
 }

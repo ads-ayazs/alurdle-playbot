@@ -3,7 +3,6 @@ package store
 import (
 	"testing"
 
-	"aluance.io/wordleplayer/internal/playerbot"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -52,7 +51,7 @@ func TestSave(t *testing.T) {
 	}
 
 	testData := oneGameTEST{
-		PlayerName:    playerbot.ONEBOT_NAME,
+		PlayerName:    ONEBOT_NAME,
 		GameId:        "id001_TestOneGameSmSave",
 		GameStatus:    "Lost",
 		WinWord:       "BLAHS",
