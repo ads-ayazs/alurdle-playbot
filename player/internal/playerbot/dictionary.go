@@ -21,13 +21,16 @@ type PlayerDictionary interface {
 
 type playerDictionary struct {
 	lexicon map[string]bool
-	mu      sync.Mutex
+	mu      sync.RWMutex
 }
 
-var muDictionaries sync.Mutex
+var muDictionaries sync.RWMutex
 var dictionaries = map[string]*playerDictionary{}
 
 func (d *playerDictionary) initialize() {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
 	d.lexicon = make(map[string]bool)
 }
 
@@ -35,6 +38,8 @@ func CreateDictionary(botId string) PlayerDictionary {
 	rand.Seed(time.Now().UnixNano())
 
 	muDictionaries.Lock()
+	defer muDictionaries.Unlock()
+
 	d, ok := dictionaries[botId]
 	if !ok {
 		d = new(playerDictionary)
@@ -42,7 +47,6 @@ func CreateDictionary(botId string) PlayerDictionary {
 
 		dictionaries[botId] = d
 	}
-	muDictionaries.Unlock()
 
 	return d
 }
@@ -57,6 +61,9 @@ func (d *playerDictionary) Remember(word string, valid bool) error {
 
 func (d *playerDictionary) Generate() (string, error) {
 	w := ""
+
+	d.mu.RLock()
+	defer d.mu.RUnlock()
 
 	// Generate a word and discard if it is known to be invalid
 	valid := false
@@ -89,6 +96,9 @@ func createRandomWord() string {
 }
 
 func (d *playerDictionary) IsValid(word string) bool {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
 	if validity, ok := d.lexicon[word]; ok {
 		return validity
 	}
@@ -99,6 +109,10 @@ func (d *playerDictionary) IsValid(word string) bool {
 func (d *playerDictionary) DescribeSize(validOnly bool) int {
 	if validOnly {
 		validCount := 0
+
+		(*d).mu.Lock()
+		defer (*d).mu.Unlock()
+
 		for _, v := range d.lexicon {
 			if v {
 				validCount++
@@ -164,9 +178,9 @@ func loadDictionaryFile(filename string) error {
 	return nil
 }
 
-type dict struct {
-	init_once  resync.Once
-	initalized bool
-	words      []string
-	wordMap    map[string]bool
-}
+// type dict struct {
+// 	init_once  resync.Once
+// 	initalized bool
+// 	words      []string
+// 	wordMap    map[string]bool
+// }
