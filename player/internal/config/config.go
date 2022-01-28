@@ -5,6 +5,8 @@ import (
 	"io/fs"
 )
 
+const CONFIG_AWS_REGION = "ca-central-1"
+
 const CONFIG_BOT_THROTTLE = 30 // ms of sleep between each game
 const CONFIG_DICTIONARY_FILENAME = "corncob_lowercase.txt"
 const CONFIG_DICTIONARY_FILEPATH = "data/" + CONFIG_DICTIONARY_FILENAME
