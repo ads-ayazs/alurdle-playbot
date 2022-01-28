@@ -71,7 +71,7 @@ func (d *playerDictionary) Generate() (string, error) {
 		if ok && valid {
 			break
 		}
-		if rand.Float32() > 0.0 {
+		if rand.Float32() > config.CONFIG_DICTIONARY_GENERATE_REAL_WORD_INJECTION {
 			// create a word from random letters
 			w = createRandomWord()
 		} else {

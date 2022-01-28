@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	numGames := 15000
+	numGames := 20000
 	numBots := 5
 	ch := make(chan string)
 
