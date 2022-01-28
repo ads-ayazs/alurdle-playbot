@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"aluance.io/wordleplayer/internal/config"
+	"aluance.io/wordleplayer/internal/store"
 	"github.com/rs/xid"
 	log "github.com/sirupsen/logrus"
 )
@@ -171,6 +172,15 @@ func (bot *oneBot) playTurn() error {
 }
 
 func (bot oneBot) finishGame() string {
+
+	sm, err := store.GetStoreManager(ONEBOT_NAME)
+	if err == nil {
+		if err := sm.Save(bot.Game); err != nil {
+			log.Error(err)
+		}
+	} else {
+		log.Error(err)
+	}
 
 	log.Info("BOT FINISHED - ", "botId: ", bot.Id, " gameId: ", bot.Game.GameId)
 	log.Info("    botId: ", bot.Id, " dictionary valid/size: ", bot.Dictionary.DescribeSize(true), "/", bot.Dictionary.DescribeSize(false))
