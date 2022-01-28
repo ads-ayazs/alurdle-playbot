@@ -158,7 +158,7 @@ func (bot *oneBot) playTurn() error {
 	bot.Game.ValidAttempts = int(outmap["validAttempts"].(float64))
 	if bot.Game.GameStatus == "Won" {
 		bot.Game.WinWord = outmap["secretWord"].(string)
-		bot.Game.WinningAttempt = outmap["winningAttempt"].(int)
+		bot.Game.WinningAttempt = int(outmap["winningAttempt"].(float64))
 	} else if bot.Game.GameStatus == "Lost" {
 		bot.Game.WinWord = outmap["secretWord"].(string)
 
