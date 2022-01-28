@@ -5,7 +5,7 @@ import (
 	"io/fs"
 )
 
-const CONFIG_BOT_THROTTLE = 100 // ms of sleep between each game
+const CONFIG_BOT_THROTTLE = 10 // ms of sleep between each game
 const CONFIG_DICTIONARY_FILENAME = "corncob_lowercase.txt"
 const CONFIG_DICTIONARY_FILEPATH = "data/" + CONFIG_DICTIONARY_FILENAME
 const CONFIG_GAME_WORDLENGTH = 5
