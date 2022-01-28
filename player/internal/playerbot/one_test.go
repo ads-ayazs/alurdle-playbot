@@ -25,7 +25,7 @@ func TestCreateOne(t *testing.T) {
 
 		v, ok := pb.(*oneBot)
 		assert.True(ok)
-		assert.NotEmpty(v.id)
+		assert.NotEmpty(v.Id)
 	}
 }
 
@@ -61,8 +61,8 @@ func TestOneBotStartGame(t *testing.T) {
 	err = v.startGame()
 	assert.NoError(err)
 
-	assert.NotEmpty(v.game.gameId)
-	assert.Equal("InPlay", v.game.gameStatus)
+	assert.NotEmpty(v.Game.GameId)
+	assert.Equal("InPlay", v.Game.GameStatus)
 }
 
 func TestOneBotIsGameInPlay(t *testing.T) {
@@ -76,7 +76,7 @@ func TestOneBotIsGameInPlay(t *testing.T) {
 	require.True(ok)
 
 	inPlay := v.isGameInPlay()
-	assert.Equal(inPlay, v.game.gameStatus == "InPlay")
+	assert.Equal(inPlay, v.Game.GameStatus == "InPlay")
 }
 
 func TestOneBotPlayTurn(t *testing.T) {
@@ -95,7 +95,7 @@ func TestOneBotPlayTurn(t *testing.T) {
 	err = v.playTurn()
 	assert.NoError(err)
 
-	assert.NotZero(len(v.game.turns))
+	assert.NotZero(len(v.Game.Turns))
 }
 
 func TestOneBotFinishGame(t *testing.T) {
@@ -115,5 +115,5 @@ func TestOneBotFinishGame(t *testing.T) {
 	require.NoError(err)
 
 	s := v.finishGame()
-	assert.Equal(v.game.gameId, s)
+	assert.Equal(v.Game.GameId, s)
 }

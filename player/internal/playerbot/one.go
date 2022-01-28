@@ -11,18 +11,19 @@ import (
 const ONEBOT_NAME = "one"
 
 type oneBot struct {
-	id         string
-	game       oneGame
-	dictionary PlayerDictionary
+	Id         string
+	Game       oneGame
+	Dictionary PlayerDictionary
 }
 
 func createOne() (Playerbot, error) {
 	bot := new(oneBot)
-	bot.id = xid.New().String()
-	log.Info("botId: ", bot.id)
+	bot.Id = xid.New().String()
+	bot.Game.PlayerName = ONEBOT_NAME
+	log.Info("botId: ", bot.Id)
 
-	bot.dictionary = CreateDictionary(bot.id)
-	if bot.dictionary == nil {
+	bot.Dictionary = CreateDictionary(bot.Id)
+	if bot.Dictionary == nil {
 		return nil, ErrNilDictionary
 	}
 
@@ -54,23 +55,24 @@ func (b oneBot) PlayGame(ch *chan string) {
 }
 
 type oneGame struct {
-	gameId         string
-	gameStatus     string
-	turns          []oneTurn
-	winWord        string
-	validAttempts  int
-	winningAttempt int
+	PlayerName     string    `dynamodbav:"playerName"`
+	GameId         string    `dynamodbav:"gameId"`
+	GameStatus     string    `dynamodbav:"gameStatus"`
+	Turns          []oneTurn `dynamodbav:"turns"`
+	WinWord        string    `dynamodbav:"winWord"`
+	ValidAttempts  int       `dynamodbav:"validAttempts"`
+	WinningAttempt int       `dynamodbav:"winningAttempt"`
 }
 
 type oneTurn struct {
-	guess     string
-	isValid   bool
-	tryResult []string
+	Guess     string   `dynamodbav:"guess"`
+	IsValid   bool     `dynamodbav:"isValid"`
+	TryResult []string `dynamodbav:"tryResult"`
 }
 
 func createOneTurn() *oneTurn {
 	turn := new(oneTurn)
-	turn.tryResult = make([]string, config.CONFIG_GAME_WORDLENGTH)
+	turn.TryResult = make([]string, config.CONFIG_GAME_WORDLENGTH)
 
 	return turn
 }
@@ -91,30 +93,30 @@ func (bot *oneBot) startGame() error {
 	}
 
 	// Save essential information
-	bot.game.gameId = outmap["id"].(string)
-	bot.game.gameStatus = outmap["gameStatus"].(string)
+	bot.Game.GameId = outmap["id"].(string)
+	bot.Game.GameStatus = outmap["gameStatus"].(string)
 
 	return nil
 }
 
 func (bot oneBot) isGameInPlay() bool {
-	return bot.game.gameStatus == "InPlay"
+	return bot.Game.GameStatus == "InPlay"
 }
 
 func (bot *oneBot) playTurn() error {
 	ge := GetGameEngine()
 
 	// Generate a word
-	if bot.dictionary == nil {
+	if bot.Dictionary == nil {
 		return ErrNilDictionary
 	}
-	guessWord, err := bot.dictionary.Generate()
+	guessWord, err := bot.Dictionary.Generate()
 	if err != nil {
 		return err
 	}
 
 	// Play the guess word
-	out, err := ge.PlayTurn(bot.game.gameId, guessWord)
+	out, err := ge.PlayTurn(bot.Game.GameId, guessWord)
 	if err != nil {
 		return err
 	}
@@ -135,32 +137,32 @@ func (bot *oneBot) playTurn() error {
 
 	// Create and save a turn record
 	turn := createOneTurn()
-	turn.guess = guessWord
-	turn.isValid = lastAttempt["isValidWord"].(bool)
+	turn.Guess = guessWord
+	turn.IsValid = lastAttempt["isValidWord"].(bool)
 
 	tr := lastAttempt["tryResult"].([]interface{})
 	for i := 0; i < len(tr); i++ {
-		turn.tryResult[i] = tr[i].(string)
+		turn.TryResult[i] = tr[i].(string)
 	}
 
-	bot.game.turns = append(bot.game.turns, *turn)
+	bot.Game.Turns = append(bot.Game.Turns, *turn)
 
 	// Update the dictionary
-	if err := bot.dictionary.Remember(turn.guess, turn.isValid); err != nil {
+	if err := bot.Dictionary.Remember(turn.Guess, turn.IsValid); err != nil {
 		return err
 	}
 
 	// Save essential information
-	bot.game.gameStatus = outmap["gameStatus"].(string)
-	bot.game.validAttempts = int(outmap["validAttempts"].(float64))
-	if bot.game.gameStatus == "Won" {
-		bot.game.winWord = outmap["secretWord"].(string)
-		bot.game.winningAttempt = outmap["winningAttempt"].(int)
-	} else if bot.game.gameStatus == "Lost" {
-		bot.game.winWord = outmap["secretWord"].(string)
+	bot.Game.GameStatus = outmap["gameStatus"].(string)
+	bot.Game.ValidAttempts = int(outmap["validAttempts"].(float64))
+	if bot.Game.GameStatus == "Won" {
+		bot.Game.WinWord = outmap["secretWord"].(string)
+		bot.Game.WinningAttempt = outmap["winningAttempt"].(int)
+	} else if bot.Game.GameStatus == "Lost" {
+		bot.Game.WinWord = outmap["secretWord"].(string)
 
 		// Update the dictionary
-		if err := bot.dictionary.Remember(bot.game.winWord, true); err != nil {
+		if err := bot.Dictionary.Remember(bot.Game.WinWord, true); err != nil {
 			return err
 		}
 	}
@@ -170,8 +172,8 @@ func (bot *oneBot) playTurn() error {
 
 func (bot oneBot) finishGame() string {
 
-	log.Info("BOT FINISHED - ", "botId: ", bot.id, " gameId: ", bot.game.gameId)
-	log.Info("    botId: ", bot.id, " dictionary valid/size: ", bot.dictionary.DescribeSize(true), "/", bot.dictionary.DescribeSize(false))
-	log.Info("    botId: ", bot.id, " outcome: ", bot.game.gameStatus)
-	return bot.game.gameId
+	log.Info("BOT FINISHED - ", "botId: ", bot.Id, " gameId: ", bot.Game.GameId)
+	log.Info("    botId: ", bot.Id, " dictionary valid/size: ", bot.Dictionary.DescribeSize(true), "/", bot.Dictionary.DescribeSize(false))
+	log.Info("    botId: ", bot.Id, " outcome: ", bot.Game.GameStatus)
+	return bot.Game.GameId
 }
