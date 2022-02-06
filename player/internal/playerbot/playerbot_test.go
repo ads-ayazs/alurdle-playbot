@@ -18,6 +18,7 @@ func TestCreateBot(t *testing.T) {
 		err     error
 	}{
 		{name: ONEBOT_NAME, result: (*Playerbot)(nil), err: nil},
+		{name: TWOBOT_NAME, result: (*Playerbot)(nil), err: nil},
 	}
 
 	for _, test := range tests {

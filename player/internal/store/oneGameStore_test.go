@@ -34,23 +34,23 @@ func TestSave(t *testing.T) {
 	sm, err := createOneGameSM()
 	require.NoError(err)
 
-	type oneTurnTEST struct {
+	type botTurnTEST struct {
 		Guess     string   `dynamodbav:"guess"`
 		IsValid   bool     `dynamodbav:"isValid"`
 		TryResult []string `dynamodbav:"tryResult"`
 	}
 
-	type oneGameTEST struct {
+	type botGameTEST struct {
 		PlayerName     string        `dynamodbav:"playerName"`
 		GameId         string        `dynamodbav:"gameId"`
 		GameStatus     string        `dynamodbav:"gameStatus"`
-		Turns          []oneTurnTEST `dynamodbav:"turns"`
+		Turns          []botTurnTEST `dynamodbav:"turns"`
 		WinWord        string        `dynamodbav:"winWord"`
 		ValidAttempts  int           `dynamodbav:"validAttempts"`
 		WinningAttempt int           `dynamodbav:"winningAttempt"`
 	}
 
-	testData := oneGameTEST{
+	testData := botGameTEST{
 		PlayerName:    ONEBOT_NAME,
 		GameId:        "id001_TestOneGameSmSave",
 		GameStatus:    "Lost",

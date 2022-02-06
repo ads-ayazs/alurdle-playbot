@@ -8,16 +8,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const ONEBOT_NAME = "one"
+const TWOBOT_NAME = "two"
 
-type oneBot struct {
+type twoBot struct {
 	Id         string
 	Game       botGame
 	Dictionary PlayerDictionary
 }
 
-func createOne() (Playerbot, error) {
-	bot := new(oneBot)
+func createTwo() (Playerbot, error) {
+	bot := new(twoBot)
 	bot.Id = xid.New().String()
 	bot.Game.PlayerName = ONEBOT_NAME
 	log.Info("botId: ", bot.Id)
@@ -30,7 +30,7 @@ func createOne() (Playerbot, error) {
 	return bot, nil
 }
 
-func (b oneBot) PlayGame(ch *chan string) {
+func (b twoBot) PlayGame(ch *chan string) {
 	// Avoid sending to nil channel
 	if ch == nil {
 		return
@@ -54,7 +54,7 @@ func (b oneBot) PlayGame(ch *chan string) {
 	*ch <- b.finishGame()
 }
 
-func (bot *oneBot) startGame() error {
+func (bot *twoBot) startGame() error {
 	ge := GetGameEngine()
 
 	// Create a new game and save the game id
@@ -76,14 +76,14 @@ func (bot *oneBot) startGame() error {
 	return nil
 }
 
-func (bot oneBot) isGameInPlay() bool {
+func (bot twoBot) isGameInPlay() bool {
 	return bot.Game.GameStatus == "InPlay"
 }
 
-func (bot *oneBot) playTurn() error {
+func (bot *twoBot) playTurn() error {
 	ge := GetGameEngine()
 
-	// Generate a word
+	// TODO: Generate a valid word
 	if bot.Dictionary == nil {
 		return ErrNilDictionary
 	}
@@ -147,7 +147,7 @@ func (bot *oneBot) playTurn() error {
 	return nil
 }
 
-func (bot oneBot) finishGame() string {
+func (bot twoBot) finishGame() string {
 
 	sm, err := store.GetStoreManager(ONEBOT_NAME)
 	if err == nil {

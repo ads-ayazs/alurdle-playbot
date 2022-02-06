@@ -1,0 +1,16 @@
+aws:
+  region: "ca-central-1"
+
+bot:
+  throttle: 50
+
+dictionary:
+  source: embedded
+  filepath: "data/corncob_lowercase.txt"
+  word-injection: 0.3
+
+game:
+  word-length: 5
+
+server:
+  url: "http://localhost:8080"
